@@ -572,6 +572,7 @@ async function CustomEvent(data) {
         isTest: data.isTest,
         printerName: document.getElementById('printer-name').value,
         paperWidth: document.getElementById('paper-width').value,
+        discordWebhookUrl: document.getElementById('discord-webhook').value,
         ignoreTestTriggers: document.getElementById('ignore-test-triggers').checked,
         deleteTempFiles: document.getElementById('delete-temp-files').checked
     });
@@ -759,6 +760,7 @@ async function TestPrint() {
 // Get references
 const printerNameInput = document.getElementById('printer-name');
 const paperWidthInput = document.getElementById('paper-width');
+const discordWebhookUrlInput = document.getElementById('discord-webhook');
 const ignoreTestTriggersInput = document.getElementById('ignore-test-triggers');
 const deleteTempFilesInput = document.getElementById('delete-temp-files');
 
@@ -774,7 +776,7 @@ function saveSetting(id) {
 }
 
 // Add event listeners
-[printerNameInput, paperWidthInput, ignoreTestTriggersInput, deleteTempFilesInput].forEach(input => {
+[printerNameInput, paperWidthInput, discordWebhookUrlInput,  ignoreTestTriggersInput, deleteTempFilesInput].forEach(input => {
     input.addEventListener("input", () => saveSetting(input.id));
     input.addEventListener("change", () => saveSetting(input.id));
 });
@@ -784,6 +786,8 @@ if (localStorage.getItem(storageKey(printerNameInput.id)))
     printerNameInput.value = localStorage.getItem(storageKey(printerNameInput.id));
 if (localStorage.getItem(storageKey(paperWidthInput.id)))
     paperWidthInput.value = localStorage.getItem(storageKey(paperWidthInput.id));
+if (localStorage.getItem(storageKey(discordWebhookUrlInput.id)))
+    discordWebhookUrlInput.value = localStorage.getItem(storageKey(discordWebhookUrlInput.id));
 if (localStorage.getItem(storageKey(ignoreTestTriggersInput.id)))
     ignoreTestTriggersInput.checked = JSON.parse(localStorage.getItem(storageKey(ignoreTestTriggersInput.id)));
 if (localStorage.getItem(storageKey(deleteTempFilesInput.id)))
