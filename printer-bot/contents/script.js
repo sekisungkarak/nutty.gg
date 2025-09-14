@@ -517,30 +517,100 @@ async function CustomEvent(data) {
             break;
 
         // Custom Code Events
-        case ('CustomCodeEvent'):
+            case ('CustomCodeEvent'):
+        {
+            switch (data.triggerCustomCodeEventName) {
+                case ('kickIncomingRaid'):
+                    {
+                        avatarEl.src = ConvertWEBPToPNG(await GetAvatar(data.user, 'kick'));
+
+                        const messageEl = document.createElement('div');
+                        messageEl.innerHTML = `<b>${data.user}</b><br>is hosting with a party of<br><b>${data.viewers} viewers!</b>`;
+
+                        contentEl.appendChild(messageEl);
+
+                        // Set the platform icon
+                        SetPlatformIcon(iconEl, 'kick');
+                    }
+                    break;
+
+             case ('tikfinity.subscribe'):
             {
-                switch (data.triggerCustomCodeEventName) {
-                    case ('kickIncomingRaid'):
-                        {
-                            avatarEl.src = ConvertWEBPToPNG(await GetAvatar(data.user, 'kick'));
+		const parsedUserDetails = JSON.parse(data.userDetails);
+    
+    		// Find .jpeg profile picture
+    		const jpegUrl = Array.isArray(parsedUserDetails.profilePictureUrls)
+       		? parsedUserDetails.profilePictureUrls.find(url => url.includes('.jpeg'))
+        		: null;
 
-                            const messageEl = document.createElement('div');
-                            messageEl.innerHTML = `<b>${data.user}</b><br>is hosting with a party of<br><b>${data.viewers} viewers!</b>`;
+    		avatarEl.src = jpegUrl;
+		
+		const subMonth = parseInt(data.subMonth) || 1;
+                const messageEl = document.createElement('div');
+                messageEl.innerHTML = `<b>${data.nickname}</b><br>just subscribed for<br><b>${subMonth} month${subMonth > 1 ? 's' : ''}!</b>`;
 
-                            contentEl.appendChild(messageEl);
-
-                            // Set the platform icon
-                            SetPlatformIcon(iconEl, 'kick');
-                        }
-                        break;
-                }
+                contentEl.appendChild(messageEl);
+                SetPlatformIcon(iconEl, 'tiktok'); // Or use a custom TikFinity icon
             }
             break;
 
-        // Don't print any event not excplicitly listed above
-        default:
-            return;
+		case ('tikfinity.follow'):
+            {
+		const parsedUserDetails = JSON.parse(data.userDetails);
+    
+    		// Find .jpeg profile picture
+    		const jpegUrl = Array.isArray(parsedUserDetails.profilePictureUrls)
+       		? parsedUserDetails.profilePictureUrls.find(url => url.includes('.jpeg'))
+        		: null;
+
+    		avatarEl.src = jpegUrl;
+		    
+		    const messageEl = document.createElement('div');
+                messageEl.innerHTML = `<b>${data.nickname}</b><br>Followed the host!`;
+
+                contentEl.appendChild(messageEl);
+                SetPlatformIcon(iconEl, 'tiktok'); // Or use a custom TikFinity icon
+            }
+            break;
+
+	case 'tikfinity.gift': {
+    	if (data.repeatEnd === true) {
+        var coins = Math.floor(data.repeatCount * data.diamondCount);
+
+        avatarEl.style.display = 'none';
+
+        const giftEl = document.createElement('img');
+	    giftEl.src = data.giftPictureUrl;
+        giftEl.style.display = 'block';
+	    giftEl.style.margin = '0 auto';
+        giftEl.style.borderRadius = '0';
+        giftEl.style.width = '6em';
+        giftEl.style.height = '6em';
+        
+        const messageEl = document.createElement('div');
+        messageEl.innerHTML = `
+            <b>${data.nickname || 'Anonymous'}</b><br>
+            sent <b>${data.giftName || 'Unknown Gift'}</b> 
+            <span style="font-size: 1em;">×${data.repeatCount || 1}</span><br>
+            <small>${coins} coins</small>
+        `;
+
+        headerEl.appendChild(giftEl);
+        contentEl.appendChild(messageEl);
+
+        SetPlatformIcon(iconEl, 'tiktok');
     }
+    break;
+}
+
+            }
+        }
+        break;
+
+    // Don't print any event not excplicitly listed above
+    default:
+        return;
+}
 
     // Set the timestamp
     const { DateTime } = luxon;
