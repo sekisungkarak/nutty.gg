@@ -575,58 +575,40 @@ async function CustomEvent(data) {
 
 	case 'tikfinity.gift': {
 
-    try {
-
-        const debugEl = document.createElement('div');
-        debugEl.style.color = 'red';
-        debugEl.innerHTML = `
-            GiftId: ${data.giftId}<br>
-            GiftName: ${data.giftName}<br>
-            Nickname: ${data.nickname}<br>
-            RepeatEnd: ${data.repeatEnd}<br>
-            GiftPictureUrl: ${data.giftPictureUrl}
-        `;
-
-        contentEl.appendChild(debugEl);
-
-        if (data.giftId !== 7934 && data.repeatEnd !== true) {
-            break;
-        }
-
-        var coins = Math.floor(
-            (data.repeatCount || 1) * (data.diamondCount || 0)
-        );
-
-        avatarEl.style.display = 'none';
-
-        const giftEl = document.createElement('img');
-        giftEl.src = data.giftPictureUrl || '';
-
-        const messageEl = document.createElement('div');
-        messageEl.innerHTML = `
-            <b>${data.nickname}</b><br>
-            sent <b>${data.giftName}</b>
-        `;
-
-        headerEl.appendChild(giftEl);
-        contentEl.appendChild(messageEl);
-
+    // Heart Me displays immediately
+    if (data.giftId !== 7934 && data.repeatEnd !== true) {
+        break;
     }
-    catch (ex) {
 
-        const errEl = document.createElement('div');
-        errEl.style.color = 'red';
-        errEl.innerHTML = `
-            ERROR:<br>
-            ${ex.toString()}
-        `;
+    var coins = Math.floor(
+        (data.repeatCount || 1) * (data.diamondCount || 0)
+    );
 
-        contentEl.appendChild(errEl);
-    }
+    avatarEl.style.display = 'none';
+
+    const giftEl = document.createElement('img');
+    giftEl.src = data.giftPictureUrl || '';
+
+    giftEl.style.display = 'block';
+    giftEl.style.margin = '0 auto';
+    giftEl.style.width = '6em';
+    giftEl.style.height = '6em';
+    giftEl.style.objectFit = 'contain';
+
+    const messageEl = document.createElement('div');
+    messageEl.innerHTML = `
+        <b>${data.nickname || 'Anonymous'}</b><br>
+        sent <b>${data.giftName || 'Unknown Gift'}</b>
+        <span style="font-size:1em;">×${data.repeatCount || 1}</span><br>
+        <small>${coins} coins</small>
+    `;
+
+    headerEl.appendChild(giftEl);
+    contentEl.appendChild(messageEl);
 
     SetPlatformIcon(iconEl, 'tiktok');
+    break;
 }
-break;
 
             }
         }
