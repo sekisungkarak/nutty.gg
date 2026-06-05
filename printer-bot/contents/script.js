@@ -573,42 +573,68 @@ async function CustomEvent(data) {
             }
             break;
 
-	case 'tikfinity.gift': {
+            case 'tikfinity.share': {
 
-    // Heart Me displays immediately
-    if (data.giftId !== 7934 && data.repeatEnd !== true) {
-        break;
-    }
+            const avatarImg = document.createElement('img');
+            avatarImg.src = data.profilePictureUrl || '';
 
-    var coins = Math.floor(
-        (data.repeatCount || 1) * (data.diamondCount || 0)
-    );
+            avatarImg.style.display = 'block';
+            avatarImg.style.margin = '0 auto';
+            avatarImg.style.width = '6em';
+            avatarImg.style.height = '6em';
+            avatarImg.style.borderRadius = '50%';
+            avatarImg.style.objectFit = 'cover';
 
-    avatarEl.style.display = 'none';
+            const messageEl = document.createElement('div');
+            messageEl.innerHTML = `
+                <b>${data.nickname || 'Anonymous'}</b><br>
+                shared the livestream 🔄
+            `;
 
-    const giftEl = document.createElement('img');
-    giftEl.src = data.giftPictureUrl || '';
+            headerEl.appendChild(avatarImg);
+            contentEl.appendChild(messageEl);
 
-    giftEl.style.display = 'block';
-    giftEl.style.margin = '0 auto';
-    giftEl.style.width = '6em';
-    giftEl.style.height = '6em';
-    giftEl.style.objectFit = 'contain';
+            SetPlatformIcon(iconEl, 'tiktok');
 
-    const messageEl = document.createElement('div');
-    messageEl.innerHTML = `
-        <b>${data.nickname || 'Anonymous'}</b><br>
-        sent <b>${data.giftName || 'Unknown Gift'}</b>
-        <span style="font-size:1em;">×${data.repeatCount || 1}</span><br>
-        <small>${coins} coins</small>
-    `;
+            break;
+        }
 
-    headerEl.appendChild(giftEl);
-    contentEl.appendChild(messageEl);
+	        case 'tikfinity.gift': {
 
-    SetPlatformIcon(iconEl, 'tiktok');
-    break;
-}
+            // Heart Me displays immediately
+            if (data.giftId !== 7934 && data.repeatEnd !== true) {
+                break;
+            }
+
+            var coins = Math.floor(
+                (data.repeatCount || 1) * (data.diamondCount || 0)
+            );
+
+            avatarEl.style.display = 'none';
+
+            const giftEl = document.createElement('img');
+            giftEl.src = data.giftPictureUrl || '';
+
+            giftEl.style.display = 'block';
+            giftEl.style.margin = '0 auto';
+            giftEl.style.width = '6em';
+            giftEl.style.height = '6em';
+            giftEl.style.objectFit = 'contain';
+
+            const messageEl = document.createElement('div');
+            messageEl.innerHTML = `
+                <b>${data.nickname || 'Anonymous'}</b><br>
+                sent <b>${data.giftName || 'Unknown Gift'}</b>
+                <span style="font-size:1em;">×${data.repeatCount || 1}</span><br>
+                <small>${coins} coins</small>
+            `;
+
+            headerEl.appendChild(giftEl);
+            contentEl.appendChild(messageEl);
+
+            SetPlatformIcon(iconEl, 'tiktok');
+            break;
+        }
 
             }
         }
