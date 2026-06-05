@@ -573,31 +573,30 @@ async function CustomEvent(data) {
             }
             break;
 
-            case 'tikfinity.share': {
+            case 'tikfinity.share':
+            {
+                const parsedUserDetails = typeof data.userDetails === 'string'
+                    ? JSON.parse(data.userDetails)
+                    : data.userDetails;
 
-            const avatarImg = document.createElement('img');
-            avatarImg.src = data.profilePictureUrl || '';
+                const jpegUrl = Array.isArray(parsedUserDetails?.profilePictureUrls)
+                    ? parsedUserDetails.profilePictureUrls.find(url => url.includes('.jpeg'))
+                    : null;
 
-            avatarImg.style.display = 'block';
-            avatarImg.style.margin = '0 auto';
-            avatarImg.style.width = '6em';
-            avatarImg.style.height = '6em';
-            avatarImg.style.borderRadius = '50%';
-            avatarImg.style.objectFit = 'cover';
+                avatarEl.src = jpegUrl || data.profilePictureUrl;
 
-            const messageEl = document.createElement('div');
-            messageEl.innerHTML = `
-                <b>${data.nickname || 'Anonymous'}</b><br>
-                shared the livestream 🔄
-            `;
+                const messageEl = document.createElement('div');
 
-            headerEl.appendChild(avatarImg);
-            contentEl.appendChild(messageEl);
+                messageEl.innerHTML = `
+                    <b>${data.nickname}</b><br>
+                    🔄 Shared the livestream!
+                `;
 
-            SetPlatformIcon(iconEl, 'tiktok');
+                contentEl.appendChild(messageEl);
 
+                SetPlatformIcon(iconEl, 'tiktok');
+            }
             break;
-        }
 
 	        case 'tikfinity.gift': {
 
