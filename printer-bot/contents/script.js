@@ -589,7 +589,7 @@ async function CustomEvent(data) {
 
                 messageEl.innerHTML = `
                     <b>${data.nickname}</b><br>
-                    🔄 Shared the livestream!
+                    Shared the livestream!
                 `;
 
                 contentEl.appendChild(messageEl);
