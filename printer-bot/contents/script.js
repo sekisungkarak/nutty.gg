@@ -536,46 +536,48 @@ async function CustomEvent(data) {
 
              case ('tikfinity.subscribe'):
             {
-		const parsedUserDetails = JSON.parse(data.userDetails);
-    
-    		// Find .jpeg profile picture
-    		const jpegUrl = Array.isArray(parsedUserDetails.profilePictureUrls)
-       		? parsedUserDetails.profilePictureUrls.find(url => url.includes('.jpeg'))
-        		: null;
+		    const parsedUserDetails = typeof data.userDetails === 'string'
+                    ? JSON.parse(data.userDetails)
+                    : data.userDetails;
 
-    		avatarEl.src = jpegUrl;
+                const jpegUrl = Array.isArray(parsedUserDetails?.profilePictureUrls)
+                    ? parsedUserDetails.profilePictureUrls.find(url => url.includes('.jpeg'))
+                    : null;
+
+                avatarEl.src = jpegUrl || data.profilePictureUrl;
 		
-		const subMonth = parseInt(data.subMonth) || 1;
+		    const subMonth = parseInt(data.subMonth) || 1;
                 const messageEl = document.createElement('div');
                 messageEl.innerHTML = `<b>${data.nickname}</b><br>just subscribed for<br><b>${subMonth} month${subMonth > 1 ? 's' : ''}!</b>`;
 
                 contentEl.appendChild(messageEl);
-                SetPlatformIcon(iconEl, 'tiktok'); // Or use a custom TikFinity icon
+                SetPlatformIcon(iconEl, 'tiktok');
             }
             break;
 
 		case ('tikfinity.follow'):
             {
-		const parsedUserDetails = JSON.parse(data.userDetails);
-    
-    		// Find .jpeg profile picture
-    		const jpegUrl = Array.isArray(parsedUserDetails.profilePictureUrls)
-       		? parsedUserDetails.profilePictureUrls.find(url => url.includes('.jpeg'))
-        		: null;
+		    const parsedUserDetails = typeof data.userDetails === 'string'
+                    ? JSON.parse(data.userDetails)
+                    : data.userDetails;
 
-    		avatarEl.src = jpegUrl;
+                const jpegUrl = Array.isArray(parsedUserDetails?.profilePictureUrls)
+                    ? parsedUserDetails.profilePictureUrls.find(url => url.includes('.jpeg'))
+                    : null;
+
+                avatarEl.src = jpegUrl || data.profilePictureUrl;
 		    
 		    const messageEl = document.createElement('div');
                 messageEl.innerHTML = `<b>${data.nickname}</b><br>Followed the host!`;
 
                 contentEl.appendChild(messageEl);
-                SetPlatformIcon(iconEl, 'tiktok'); // Or use a custom TikFinity icon
+                SetPlatformIcon(iconEl, 'tiktok'); 
             }
             break;
 
             case 'tikfinity.share':
             {
-                const parsedUserDetails = typeof data.userDetails === 'string'
+            const parsedUserDetails = typeof data.userDetails === 'string'
                     ? JSON.parse(data.userDetails)
                     : data.userDetails;
 
@@ -585,7 +587,7 @@ async function CustomEvent(data) {
 
                 avatarEl.src = jpegUrl || data.profilePictureUrl;
 
-                const messageEl = document.createElement('div');
+            const messageEl = document.createElement('div');
 
                 messageEl.innerHTML = `
                     <b>${data.nickname}</b><br>
