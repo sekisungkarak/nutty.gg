@@ -545,6 +545,11 @@ async function CustomEvent(data) {
                     : null;
 
                 avatarEl.src = jpegUrl || data.profilePictureUrl;
+                avatarEl.style.display = 'block';
+                avatarEl.style.margin = '0 auto';
+                avatarEl.style.width = '7em';
+                avatarEl.style.height = '7em';
+                avatarEl.style.objectFit = 'contain';
 		
 		    const subMonth = parseInt(data.subMonth) || 1;
                 const messageEl = document.createElement('div');
@@ -566,6 +571,11 @@ async function CustomEvent(data) {
                     : null;
 
                 avatarEl.src = jpegUrl || data.profilePictureUrl;
+                avatarEl.style.display = 'block';
+                avatarEl.style.margin = '0 auto';
+                avatarEl.style.width = '7em';
+                avatarEl.style.height = '7em';
+                avatarEl.style.objectFit = 'contain';
 		    
 		    const messageEl = document.createElement('div');
                 messageEl.innerHTML = `<b>${data.nickname}</b><br>Followed the host!`;
@@ -586,6 +596,12 @@ async function CustomEvent(data) {
                     : null;
 
                 avatarEl.src = jpegUrl || data.profilePictureUrl;
+
+                avatarEl.style.display = 'block';
+                avatarEl.style.margin = '0 auto';
+                avatarEl.style.width = '7em';
+                avatarEl.style.height = '7em';
+                avatarEl.style.objectFit = 'contain';
 
             const messageEl = document.createElement('div');
 
