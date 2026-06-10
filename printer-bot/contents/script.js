@@ -544,7 +544,15 @@ async function CustomEvent(data) {
                     ? parsedUserDetails.profilePictureUrls.find(url => url.includes('.jpeg'))
                     : null;
 
-                avatarEl.src = jpegUrl || data.profilePictureUrl;
+                let finalUrl = jpegUrl || data.profilePictureUrl;
+
+                // Strip the cropping filter to get the full-size high-res image
+                if (finalUrl) {
+                    finalUrl = finalUrl.replace(/~tplv-tiktokx-cropcenter:\d+:\d+/g, "");
+                }
+
+                avatarEl.src = finalUrl;
+
                 avatarEl.style.display = 'block';
                 avatarEl.style.margin = '0 auto';
                 avatarEl.style.width = '7em';
@@ -570,7 +578,15 @@ async function CustomEvent(data) {
                     ? parsedUserDetails.profilePictureUrls.find(url => url.includes('.jpeg'))
                     : null;
 
-                avatarEl.src = jpegUrl || data.profilePictureUrl;
+                let finalUrl = jpegUrl || data.profilePictureUrl;
+
+                // Strip the cropping filter to get the full-size high-res image
+                if (finalUrl) {
+                    finalUrl = finalUrl.replace(/~tplv-tiktokx-cropcenter:\d+:\d+/g, "");
+                }
+
+                avatarEl.src = finalUrl;
+
                 avatarEl.style.display = 'block';
                 avatarEl.style.margin = '0 auto';
                 avatarEl.style.width = '7em';
@@ -587,7 +603,7 @@ async function CustomEvent(data) {
 
             case 'tikfinity.share':
             {
-            const parsedUserDetails = typeof data.userDetails === 'string'
+                const parsedUserDetails = typeof data.userDetails === 'string'
                     ? JSON.parse(data.userDetails)
                     : data.userDetails;
 
@@ -595,7 +611,14 @@ async function CustomEvent(data) {
                     ? parsedUserDetails.profilePictureUrls.find(url => url.includes('.jpeg'))
                     : null;
 
-                avatarEl.src = jpegUrl || data.profilePictureUrl;
+                let finalUrl = jpegUrl || data.profilePictureUrl;
+
+                // Strip the cropping filter to get the full-size high-res image
+                if (finalUrl) {
+                    finalUrl = finalUrl.replace(/~tplv-tiktokx-cropcenter:\d+:\d+/g, "");
+                }
+
+                avatarEl.src = finalUrl;
 
                 avatarEl.style.display = 'block';
                 avatarEl.style.margin = '0 auto';
@@ -603,7 +626,7 @@ async function CustomEvent(data) {
                 avatarEl.style.height = '7em';
                 avatarEl.style.objectFit = 'contain';
 
-            const messageEl = document.createElement('div');
+                const messageEl = document.createElement('div');
 
                 messageEl.innerHTML = `
                     <b>${data.nickname}</b><br>
@@ -615,6 +638,7 @@ async function CustomEvent(data) {
                 SetPlatformIcon(iconEl, 'tiktok');
             }
             break;
+
 
 	        case 'tikfinity.gift': {
 
