@@ -136,6 +136,23 @@ li {
     display: inline-block;     /* Just in case */
 }
 
+ /*.avatar-alert{
+	width: 2em;                
+    	height: 2em;
+	margin: 1px;
+	transform: translate(0px, 0.25em);
+	border-radius: 50%
+}*/
+
+.avatar-alert {
+  vertical-align: middle;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+
+
 .timestamp,
 .pronouns {
 	background: #adadad46;
@@ -268,67 +285,67 @@ li {
 /*****************/
 
 .announcementBlue {
-	background: linear-gradient(#03d3d7, #8d49fe) !important;
+	background: linear-gradient(#03d3d7BF, #8d49feBF) !important;
 }
 
 .announcementGreen {
-	background: linear-gradient(#01da86, #55bee4) !important;
+	background: linear-gradient(#01da86BF, #55bee4BF) !important;
 }
 
 .announcementOrange {
-	background: linear-gradient(#feb419, #e1df00) !important;
+	background: linear-gradient(#feb419BF, #e1df00BF) !important;
 }
 
 .announcementPurple {
-	background: linear-gradient(#9548ff, #fc74e6) !important;
+	background: linear-gradient(#9548ffBF, #fc74e6BF) !important;
 }
 
 .twitch {
-	background: linear-gradient(#6d5ca1, #9146ff) !important;
+	background: linear-gradient(#6d5ca1bf, #9146ffBF) !important;
 }
 
 .youtube {
-	background: linear-gradient(#FF6C60, #FF0707) !important;
+	background: linear-gradient(#FF6C60BF, #FF0707BF) !important;
 }
 
 .kick {
-	background: linear-gradient(#53fc18, #005600) !important;
+	background: linear-gradient(#53fc18BF, #005600BF) !important;
 }
 
 .streamlabs {
-	background: linear-gradient(#73dabb, #397765) !important;
+	background: linear-gradient(#73dabbbf, #397765bf) !important;
 }
 
 .streamelements {
-	background: linear-gradient(#263b8a, #0a112a) !important;
+	background: linear-gradient(#263b8abf, #0a112abf) !important;
 }
 
 .patreon {
-	background: linear-gradient(#c76633, #fd5e0a) !important;
+	background: linear-gradient(#c76633bf, #fd5e0abf) !important;
 }
 
 .kofi {
-	background: linear-gradient(#54c7ee, #08c2ff) !important;
+	background: linear-gradient(#54c7eebf, #08c2ffbf) !important;
 }
 
 .tipeeeStream {
-	background: linear-gradient(#120e23, #5d192a) !important;
+	background: linear-gradient(#120e23bf, #5d192abf) !important;
 }
 
 .fourthwall {
-	background: linear-gradient(#466edb, #1c56f5) !important;
+	background: linear-gradient(#466edbbf, #1c56f5bf) !important;
 }
 
 .tiktok {
-	background: linear-gradient(#262626, #000000) !important;
+	background: linear-gradient(#262626BF, #000000BF) !important;
 }
 
 .fourthwall {
-	background: linear-gradient(#466edb, #1c56f5) !important;
+	background: linear-gradient(#466edbbf, #1c56f5bf) !important;
 }
 
 .thumbnail {
-	background: linear-gradient(#494949, #202020) !important;
+	background: linear-gradient(#494949bf, #202020bf) !important;
 }
 
 

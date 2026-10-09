@@ -47,7 +47,7 @@ const inlineChat = GetBooleanParam("inlineChat", false);
 const imageEmbedPermissionLevel = GetIntParam("imageEmbedPermissionLevel", 20);
 const showYouTubeLinkPreviews = GetBooleanParam("showYouTubeLinkPreviews", true);
 
-const showTwitchMessages = GetBooleanParam("showTwitchMessages", true);
+const showTwitchMessages = GetBooleanParam("showTwitchMessages", false);
 const showTwitchAnnouncements = GetBooleanParam("showTwitchAnnouncements", true);
 const showTwitchFollows = GetBooleanParam("showTwitchFollows", false);
 const showTwitchSubs = GetBooleanParam("showTwitchSubs", true);
@@ -55,7 +55,7 @@ const showTwitchChannelPointRedemptions = GetBooleanParam("showTwitchChannelPoin
 const showTwitchRaids = GetBooleanParam("showTwitchRaids", true);
 const showTwitchSharedChat = GetIntParam("showTwitchSharedChat", 2);
 
-let kickUsername = urlParams.get("kickUsername") || "";
+const kickUsername = urlParams.get("kickUsername") || "";
 const showKickMessages = GetBooleanParam("showKickMessages", true);
 // const showKickFollows = GetBooleanParam("showKickFollows", false);
 const showKickSubs = GetBooleanParam("showKickSubs", true);
@@ -67,12 +67,13 @@ const showYouTubeSuperChats = GetBooleanParam("showYouTubeSuperChats", true);
 const showYouTubeSuperStickers = GetBooleanParam("showYouTubeSuperStickers", true);
 const showYouTubeMemberships = GetBooleanParam("showYouTubeMemberships", true);
 
-const enableTikTokSupport = GetBooleanParam("enableTikTokSupport", false);
-const showTikTokFollows = GetBooleanParam("showTikTokFollows", false);
-const showTikTokLikes = GetBooleanParam("showTikTokLikes", false);
-const showTikTokMessages = GetBooleanParam("showTikTokMessages", false);
-const showTikTokGifts = GetBooleanParam("showTikTokGifts", false);
-const showTikTokSubs = GetBooleanParam("showTikTokSubs", false);
+const enableTikTokSupport = GetBooleanParam("enableTikTokSupport", true);
+const showTikTokFollows = GetBooleanParam("showTikTokFollows", true);
+const showTikTokLikes = GetBooleanParam("showTikTokLikes", true);
+const showTikTokMessages = GetBooleanParam("showTikTokMessages", true);
+const showTikTokGifts = GetBooleanParam("showTikTokGifts", true);
+const showTikTokSubs = GetBooleanParam("showTikTokSubs", true);
+const showTikTokShare = GetBooleanParam("showTikTokShare", true);
 
 const showStreamlabsDonations = GetBooleanParam("showStreamlabsDonations", true)
 const showStreamElementsTips = GetBooleanParam("showStreamElementsTips", true);
@@ -84,9 +85,6 @@ const showFourthwallAlerts = GetBooleanParam("showFourthwallAlerts", true);
 const furryMode = GetBooleanParam("furryMode", false);
 
 const animationSpeed = GetIntParam("animationSpeed", 0.1);
-
-// Kick is stupid and turns underscores into dashes which fuck everything up, therefore do a find/replace to make it work good
-kickUsername = kickUsername.replace(/_/g, "-");
 
 // Set fonts for the widget
 document.body.style.fontFamily = font;
@@ -210,21 +208,6 @@ client.on('Twitch.UserTimedOut', (response) => {
 client.on('Twitch.ChatCleared', (response) => {
 	console.debug(response.data);
 	TwitchChatCleared(response.data);
-})
-
-client.on('Twitch.SharedChatMessageDeleted', (response) => {
-	console.debug(response.data);
-	TwitchChatMessageDeleted(response.data);
-})
-
-client.on('Twitch.SharedChatUserBanned', (response) => {
-	console.debug(response.data);
-	TwitchUserBanned(response.data);
-})
-
-client.on('Twitch.SharedChatUserTimedout', (response) => {
-	console.debug(response.data);
-	TwitchUserBanned(response.data);
 })
 
 client.on('YouTube.Message', (response) => {
@@ -423,7 +406,7 @@ function TikfinityConnect() {
 	
 	if (tikfinityWebsocket) return; // Already connected
 
-	tikfinityWebsocket = new WebSocket("ws://localhost:21213/");
+	tikfinityWebsocket = new WebSocket("ws://localhost:47800/");
 
 	tikfinityWebsocket.onopen = function () {
 		console.log(`TikFinity successfully connected...`)
@@ -465,8 +448,13 @@ function TikfinityConnect() {
 			case 'gift':
 				TikTokGift(data);
 				break;
+				
 			case 'subscribe':
 				TikTokSubscribe(data);
+				break;
+				
+			case 'share':
+				TikTokShare(data);
 				break;
 		}
 	}
@@ -535,26 +523,18 @@ async function TwitchChatMessage(data) {
 	}
 
 	// Set Shared Chat
-	const isFromSharedChatGuest = data.isFromSharedChatGuest;
-	if (isFromSharedChatGuest) {		
-		switch (showTwitchSharedChat)
-		{
-			// 2 = Show & Highlight
-			case 2:
-				let sharedChatChannel = data.sharedChatSource.name;		// Twitch removed the source channel for some reason?!?!
-				if (sharedChatChannel.toLowerCase() != data.sharedChatSource.login.toLowerCase())
-					sharedChatChannel = `${sharedChatChannel} (${data.sharedChatSource.login})`;
+	const isSharedChat = data.isSharedChat;
+	if (isSharedChat) {
+		if (showTwitchSharedChat > 1) {
+			if (!data.sharedChat.primarySource) {
+				const sharedChatChannel = data.sharedChat.sourceRoom.name;
 				sharedChatDiv.style.display = 'block';
 				sharedChatChannelDiv.innerHTML = `💬 ${sharedChatChannel}`;
 				messageContainerDiv.classList.add("highlightMessage");
-				break;
-			// 1 = Show but do not highlight
-			case 1:
-				break;
-			// 0 = Do not show
-			case 0:
-				return;
+			}
 		}
+		else if (!data.sharedChat.primarySource && showTwitchSharedChat == 0)
+			return;
 	}
 
 	// Set Reply Message
@@ -1163,7 +1143,7 @@ function TwitchUserBanned(data) {
 	const messagesToRemove = [];
 
 	// ID of the message to remove
-	const userId = data.targetUser.id;
+	const userId = data.user_id;
 
 	// Find the items to remove
 	for (let i = 0; i < messageList.children.length; i++) {
@@ -1951,32 +1931,28 @@ function FourthwallGiftPurchase(data) {
 	const contentDiv = instance.querySelector("#content");
 
 	// Set the card background colors
-	cardDiv.classList.add('fourthwall');
-
-	// // Set the card background colors
-	// cardDiv.classList.add('blank');
-	// titleDiv.classList.add('centerThatShitHomie');
-	// contentDiv.classList.add('centerThatShitHomie');
+	cardDiv.classList.add('blank');
+	titleDiv.classList.add('centerThatShitHomie');
+	contentDiv.classList.add('centerThatShitHomie');
 
 	// Set the text
-	// let user = data.username;
+	let user = data.username;
 	const total = data.total;
 	const currency = data.currency;
 	const gifts = data.gifts.length;
 	const itemName = data.offer.name;
-	// const itemImageUrl = data.offer.imageUrl;
-	// const fourthwallProductImage = `<img src="${itemImageUrl}" class="productImage"/>`;
-	// const message = DecodeHTMLString(data.statmessageus);
+	const itemImageUrl = data.offer.imageUrl;
+	const fourthwallProductImage = `<img src="${itemImageUrl}" class="productImage"/>`;
+	const message = DecodeHTMLString(data.statmessageus);
 
 	let contents = "";
 
-	// contents += fourthwallProductImage;
+	contents += fourthwallProductImage;
 
-	// contents += "<br><br>";
+	contents += "<br><br>";
 
 	// If the user ordered more than one item, write how many items they ordered
-	// contents += `${user} gifted`;
-	contents += `Someone has gifted`;
+	contents += `${user} gifted`;
 
 	// If there is more than one gifted item, display the number of gifts
 	if (gifts > 1)
@@ -1993,11 +1969,11 @@ function FourthwallGiftPurchase(data) {
 
 	titleDiv.innerHTML = contents;
 
-	// // Add the custom message from the user
-	// if (message.trim() != "")
-	// 	contentDiv.innerHTML = `${message}`;
-	// else
-	// 	contentDiv.style.display = 'none'
+	// Add the custom message from the user
+	if (message.trim() != "")
+		contentDiv.innerHTML = `${message}`;
+	else
+		contentDiv.style.display = 'none'
 
 	AddMessageItem(instance, data.id);
 }
@@ -2022,11 +1998,8 @@ function FourthwallGiftDrawStarted(data) {
 
 	// Set the card background colors
 	cardDiv.classList.add('fourthwall');
-
-	// // Set the card background colors
-	// cardDiv.classList.add('fourthwall');
-	// titleDiv.classList.add('centerThatShitHomie');
-	// contentDiv.classList.add('centerThatShitHomie');
+	titleDiv.classList.add('centerThatShitHomie');
+	contentDiv.classList.add('centerThatShitHomie');
 
 	// Set the text
 	const durationSeconds = data.durationSeconds;
@@ -2035,10 +2008,10 @@ function FourthwallGiftDrawStarted(data) {
 	let contents = "";
 
 	// If the user ordered more than one item, write how many items they ordered
-	contents += `🎁 ${itemName} Giveaway!`;
+	contents += `<h3>🎁 ${itemName} Giveaway!</h3>`;
 
 	titleDiv.innerHTML = contents;
-	contentDiv.innerHTML = `Type 'join' in the next ${durationSeconds} seconds for your chance to win!`;
+	contentDiv.innerHTML = `Type !join in the next ${durationSeconds} seconds for your chance to win!`;
 	//contentDiv.style.display = `none`;
 
 	AddMessageItem(instance, data.id);
@@ -2064,16 +2037,13 @@ function FourthwallGiftDrawEnded(data) {
 
 	// Set the card background colors
 	cardDiv.classList.add('fourthwall');
-
-	// // Set the card background colors
-	// cardDiv.classList.add('fourthwall');
-	// titleDiv.classList.add('centerThatShitHomie');
-	// contentDiv.classList.add('centerThatShitHomie');
+	titleDiv.classList.add('centerThatShitHomie');
+	contentDiv.classList.add('centerThatShitHomie');
 
 	let contents = "";
 
 	// If the user ordered more than one item, write how many items they ordered
-	contents += `🥳 GIVEAWAY ENDED 🥳`;
+	contents += `<h3>🥳 GIVEAWAY ENDED 🥳</h3>`;
 	//contents += `Congratulations ${GetWinnersList(data.gifts)}!`
 
 	titleDiv.innerHTML = contents;
@@ -2702,65 +2672,76 @@ function TikTokFollow(data) {
 	cardDiv.classList.add('tiktok');
 
 	const user = data.nickname;
-	const tiktokIcon = `<img src="icons/platforms/tiktok.png" class="platform"/>`;
+	const avatarImg = `<img src="${data.profilePictureUrl}" class="avatar-alert" />`;
 
-	titleDiv.innerHTML = `${tiktokIcon} ${user} followed`;
+	titleDiv.innerHTML = `${avatarImg} <span style="vertical-align: middle;">${user} followed</span>`;
 
 	AddMessageItem(instance, data.msgId, 'tiktok', data.userId);
 }
 
-
-/*
-*
-* Note to Nutty:
-* TikFinity only exposes the Like Count in batches of 15 at a time. >:(
-* So basically this code will get the latest element and adds the like count to it
-* and re-render them, preventing the "flood" it would otherwise cause.
-*
-*/
+// test verified
 
 function TikTokLikes(data) {
 	if (!showTikTokLikes)
 		return;
 
-
 	// Get the total number of likes
-	var likeCountTotal = parseInt(data.likeCount);
+	let likeCount = parseInt(data.likeCount);
 
 	// Search for Previous Likes from the Same User
-    const previousLikeContainer = document.querySelector(`li[data-user-id="${data.userId}"]`);
+    const previousLikeContainer = document.querySelector(`.likes[data-user-identifier="${data.userId}"]`);	
 
 	// If found, fetches the previous likes, deletes the element
     // and then creates a new count with a sum of the like count
     if (previousLikeContainer) {
         const likeCountElem = previousLikeContainer.querySelector('#tiktok-gift-repeat-count');
         if (likeCountElem) {
-            var likeCountPrev = parseInt(likeCountElem.textContent.replace('x', ''));
-            likeCountTotal = Math.floor(likeCountPrev + likeCountTotal);
-            previousLikeContainer.remove();
+			const liLikeContainer = previousLikeContainer.parentElement?.parentElement
+			if (liLikeContainer) {
+				
+				let prevLikeCount = parseInt(likeCountElem.textContent.replace('x', ''), 10);
+				let likeCountUpdate = Math.floor(prevLikeCount + likeCount);
+				let likeCountDiv = previousLikeContainer.querySelector('#tiktok-gift-repeat-count');
+
+				likeCountDiv.innerText = `x${likeCountUpdate}`;
+				
+				const parent = liLikeContainer.parentElement;
+				if (parent) { parent.appendChild(liLikeContainer); }
+			}
         }
     }
 
-	// Get a reference to the template
-	const template = document.getElementById('tiktok-gift-template');
+	else {
+		// Get a reference to the template
+		const template = document.getElementById('tiktok-gift-template');
 
-	// Create a new instance of the template
-	const instance = template.content.cloneNode(true);
+		// Create a new instance of the template
+		const instance = template.content.cloneNode(true);
+		
+		// gets the GiftElement
+		const giftElement = instance.querySelector('.tiktok-gift');
 
-	// Get divs
-	const avatarImg = instance.querySelector('.tiktok-gift-avatar');
-	const usernameSpan = instance.querySelector('#tiktok-gift-username');
-	const giftNameSpan = instance.querySelector('#tiktok-gift-name');
-	const stickerImg = instance.querySelector('.tiktok-gift-sticker');
-	const repeatCountDiv = instance.querySelector('#tiktok-gift-repeat-count');
+		// adds the like class
+		giftElement.classList.add('likes');
 
-	avatarImg.src = data.profilePictureUrl;
-	usernameSpan.innerText = data.nickname;
-	giftNameSpan.innerText = 'Likes';
-	stickerImg.src = '';
-	repeatCountDiv.innerText = `x${likeCountTotal}`;
+		// and assigns the user id
+		giftElement.dataset.userIdentifier = data.userId;
 
-	AddMessageItem(instance, data.msgId, 'tiktok', data.userId);
+		// Get divs
+		const avatarImg = instance.querySelector('.tiktok-gift-avatar');
+		const usernameSpan = instance.querySelector('#tiktok-gift-username');
+		const giftNameSpan = instance.querySelector('#tiktok-gift-name');
+		const stickerImg = instance.querySelector('.tiktok-gift-sticker');
+		const repeatCountDiv = instance.querySelector('#tiktok-gift-repeat-count');
+
+		avatarImg.src = data.profilePictureUrl;
+		usernameSpan.innerText = data.nickname;
+		giftNameSpan.innerText = 'Likes';
+		stickerImg.src = '';
+		repeatCountDiv.innerText = `x${likeCount}`;
+
+		AddMessageItem(instance, data.msgId, 'tiktok', data.userId);
+	}
 }
 
 function TikTokGift(data) {
@@ -2798,8 +2779,6 @@ function TikTokGift(data) {
 	AddMessageItem(instance, data.msgId, 'tiktok', data.userId);
 }
 
-
-
 function TikTokSubscribe(data) {
 	if (!showTikTokSubs)
 		return;
@@ -2822,10 +2801,39 @@ function TikTokSubscribe(data) {
 	cardDiv.classList.add('tiktok');
 
 	const user = data.nickname;
-	const tiktokIcon = `<img src="icons/platforms/tiktok.png" class="platform"/>`;
+	const avatarImg = `<img src="${data.profilePictureUrl}" class="avatar-alert"/>`;
 
 	//titleDiv.innerHTML = `${tiktokIcon} ${user} subscribed on TikTok`;
-	titleDiv.innerHTML = `${tiktokIcon} ${user} subscribed for ${data.subMonth} months`;
+	titleDiv.innerHTML = `${avatarImg} ${user} subscribed for ${data.subMonth} months`;
+
+	AddMessageItem(instance, data.msgId, 'tiktok', data.userId);
+}
+
+function TikTokShare(data) {
+	if (!showTikTokShare)
+		return;
+
+	// Get a reference to the template
+	const template = document.getElementById('cardTemplate');
+
+	// Create a new instance of the template
+	const instance = template.content.cloneNode(true);
+
+	// Get divs
+	const cardDiv = instance.querySelector("#card");
+	const headerDiv = instance.querySelector("#header");
+	const avatarDiv = instance.querySelector("#avatar");
+	const iconDiv = instance.querySelector("#icon");
+	const titleDiv = instance.querySelector("#title");
+	const contentDiv = instance.querySelector("#content");
+
+	// Set the card background colors
+	cardDiv.classList.add('tiktok');
+
+	const user = data.nickname;
+	const avatarImg = `<img src="${data.profilePictureUrl}" class="avatar-alert"/>`;
+
+	titleDiv.innerHTML = `${avatarImg} ${user} shared the live!`;
 
 	AddMessageItem(instance, data.msgId, 'tiktok', data.userId);
 }
