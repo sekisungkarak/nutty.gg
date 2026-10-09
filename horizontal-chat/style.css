@@ -133,6 +133,12 @@ li {
 	white-space: nowrap;
 }
 
+.bubble {
+	background: var(--bubble-color) !important;
+	padding: 0.5em 1em;
+	border-radius: var(--border-radius);
+}
+
 .avatar {
 	height: 1em;
 	margin: 1px;
@@ -165,6 +171,10 @@ li {
 	transform: translate(0px, 0.25em);
 }
 
+.avatar-rounded {
+  border-radius: 50%;
+}
+
 .emote {
 	height: 1.5em;
 	margin: 1px;
@@ -188,6 +198,51 @@ li {
 	font-weight: 700;
 	line-height: 1.7em;
 	margin: 0px 5px;
+}
+
+#card {
+	background: #adadad46;
+	padding: 0.5em 1em;
+	border-radius: var(--border-radius);
+}
+
+.tiktok-gift {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: 1em;
+	padding: 0.5em 1em;
+	border-radius: var(--border-radius);
+	max-width: 100%;
+	background: linear-gradient(#262626BF, #000000BF) !important;
+}
+
+.tiktok-gift-avatar {
+	height: 3em;
+	margin: 1px;
+	border-radius: 50%;
+	justify-content: left;
+	flex-shrink: 0;
+}
+
+.tiktok-gift-message {
+	flex-grow: 1;
+	white-space: nowrap;		/* keeps text in a single line */
+	overflow: hidden;			/* hides overflowed content */
+	text-overflow: ellipsis;	/* adds the "..." at the end */
+}
+
+.tiktok-gift-sticker {
+	height: 2.5em;
+	flex-shrink: 0;
+	justify-content: flex-end;
+}
+
+#tiktok-gift-repeat-count {
+	justify-content: flex-end;
+	font-size: 1.5em;
+	font-style: italic;
+	font-weight: 500;
 }
 
 /* .firstMessage {

@@ -144,14 +144,6 @@
 			"group": "Which Twitch messages do you want to see?"
 		},
 		{
-			"id": "showTwitchFollows",
-			"label": "New Followers",
-			"description": "",
-			"type": "checkbox",
-			"defaultValue": false,
-			"group": "Which Twitch messages do you want to see?"
-		},
-		{
 			"id": "showTwitchSubs",
 			"label": "New Subscribers",
 			"description": "",
@@ -260,7 +252,7 @@
 			"label": "Enable TikTok Support",
 			"description": "",
 			"type": "checkbox",
-			"defaultValue": false,
+			"defaultValue": true,
 			"group": "Which TikTok messages do you want to see?"
 		},
 		{
@@ -275,6 +267,15 @@
 		{
 			"id": "showTikTokFollows",
 			"label": "New Followers",
+			"description": "",
+			"type": "checkbox",
+			"defaultValue": true,
+			"showIf": "enableTikTokSupport",
+			"group": "Which TikTok messages do you want to see?"
+		},
+		{
+			"id": "showTikTokShare",
+			"label": "Share",
 			"description": "",
 			"type": "checkbox",
 			"defaultValue": true,

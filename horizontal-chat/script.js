@@ -10,7 +10,7 @@ const sbServerPort = urlParams.get("port") || "8080";
 const minimumRole = 2;							// 1 - Viewer, 2 - VIP, 3 - Moderator, 4 - Broadcaster
 const avatarMap = new Map();
 const pronounMap = new Map();
-const animationDuration = 8000;
+const animationDuration = 6000;
 let widgetLocked = false;						// Needed to lock animation from overlapping
 let alertQueue = [];
 
@@ -36,6 +36,10 @@ const showUsername = GetBooleanParam("showUsername", true);
 const showMessage = GetBooleanParam("showMessage", true);
 const font = urlParams.get("font") || "";
 const fontSize = urlParams.get("fontSize") || "18";
+const lineSpacing = urlParams.get("lineSpacing") || "1.7";
+const useChatBubbles = GetBooleanParam("useChatBubbles", false);
+const bubbleColor = urlParams.get("bubbleColor") || "#000000";
+const bubbleOpacity = urlParams.get("bubbleOpacity") || "0.9";
 const background = urlParams.get("background") || "#000000";
 const opacity = urlParams.get("opacity") || "0.5";
 
@@ -46,13 +50,12 @@ const groupConsecutiveMessages = GetBooleanParam("groupConsecutiveMessages", tru
 
 const showTwitchMessages = GetBooleanParam("showTwitchMessages", true);
 const showTwitchAnnouncements = GetBooleanParam("showTwitchAnnouncements", true);
-const showTwitchFollows = GetBooleanParam("showTwitchFollows", false);
 const showTwitchSubs = GetBooleanParam("showTwitchSubs", true);
 const showTwitchChannelPointRedemptions = GetBooleanParam("showTwitchChannelPointRedemptions", true);
 const showTwitchRaids = GetBooleanParam("showTwitchRaids", true);
 const showTwitchSharedChat = GetBooleanParam("showTwitchSharedChat", true);
 
-let kickUsername = urlParams.get("kickUsername") || "";
+const kickUsername = urlParams.get("kickUsername") || "";
 const showKickMessages = GetBooleanParam("showKickMessages", true);
 // const showKickFollows = GetBooleanParam("showKickFollows", false);
 const showKickSubs = GetBooleanParam("showKickSubs", true);
@@ -64,11 +67,12 @@ const showYouTubeSuperChats = GetBooleanParam("showYouTubeSuperChats", true);
 const showYouTubeSuperStickers = GetBooleanParam("showYouTubeSuperStickers", true);
 const showYouTubeMemberships = GetBooleanParam("showYouTubeMemberships", true);
 
-const enableTikTokSupport = GetBooleanParam("enableTikTokSupport", false);
-const showTikTokFollows = GetBooleanParam("showTikTokFollows", false);
-const showTikTokMessages = GetBooleanParam("showTikTokMessages", false);
-const showTikTokGifts = GetBooleanParam("showTikTokGifts", false);
-const showTikTokSubs = GetBooleanParam("showTikTokSubs", false);
+const enableTikTokSupport = GetBooleanParam("enableTikTokSupport", true);
+const showTikTokFollows = GetBooleanParam("showTikTokFollows", true);
+const showTikTokShare = GetBooleanParam("showTikTokShare", true);
+const showTikTokMessages = GetBooleanParam("showTikTokMessages", true);
+const showTikTokGifts = GetBooleanParam("showTikTokGifts", true);
+const showTikTokSubs = GetBooleanParam("showTikTokSubs", true);
 
 const showStreamlabsDonations = GetBooleanParam("showStreamlabsDonations", true)
 const showStreamElementsTips = GetBooleanParam("showStreamElementsTips", true);
@@ -80,9 +84,6 @@ const showFourthwallAlerts = GetBooleanParam("showFourthwallAlerts", true);
 const furryMode = GetBooleanParam("furryMode", false);
 
 const animationSpeed = GetIntParam("animationSpeed", 0.5);
-
-// Kick is stupid and turns underscores into dashes which fuck everything up, therefore do a find/replace to make it work good
-kickUsername = kickUsername.replace(/_/g, "-");
 
 // Set fonts for the widget
 document.body.style.fontFamily = font;
@@ -137,11 +138,6 @@ client.on('Twitch.Cheer', (response) => {
 client.on('Twitch.Announcement', (response) => {
 	console.debug(response.data);
 	TwitchAnnouncement(response.data);
-})
-
-client.on('Twitch.Follow', (response) => {
-	console.debug(response.data);
-	TwitchFollow(response.data);
 })
 
 client.on('Twitch.Sub', (response) => {
@@ -420,14 +416,25 @@ function TikfinityConnect() {
 			case 'chat':
 				TikTokChat(data);
 				break;
+
+			case 'like':
+				TikTokLikes(data);
+				break;
+
 			case 'follow':
 				TikTokFollow(data);
 				break;
+
 			case 'gift':
 				TikTokGift(data);
 				break;
+				
 			case 'subscribe':
 				TikTokSubscribe(data);
+				break;
+				
+			case 'share':
+				TikTokShare(data);
 				break;
 		}
 	}
@@ -639,20 +646,6 @@ async function TwitchAnnouncement(data) {
 	ShowAlert(message, background);
 }
 
-function TwitchFollow(data) {	
-	if (!showTwitchFollows)
-		return;
-	
-	// Set the text
-	let username = data.user_name;
-	if (data.user_name.toLowerCase() != data.user_login.toLowerCase())
-		username = `${data.user_name} (${data.user_login})`;
-	
-	const message = `${username} followed`;
-
-	ShowAlert(message, 'twitch');
-}
-
 async function TwitchSub(data) {
 	if (!showTwitchSubs)
 		return;
@@ -793,7 +786,7 @@ function TwitchUserBanned(data) {
 	const messagesToRemove = [];
 
 	// ID of the message to remove
-	const userId = data.targetUser.id;
+	const userId = data.user_id;
 
 	// Find the items to remove
 	for (let i = 0; i < messageList.children.length; i++) {
@@ -1167,7 +1160,7 @@ function FourthwallGiftPurchase(data) {
 	if (!showFourthwallAlerts)
 		return;
 
-	// let user = data.username;
+	let user = data.username;
 	const total = data.total;
 	const currency = data.currency;
 	const gifts = data.gifts.length;
@@ -1176,8 +1169,7 @@ function FourthwallGiftPurchase(data) {
 	let message = "";
 
 	// If the user ordered more than one item, write how many items they ordered
-	// message += `${user} gifted`;
-	message += `Someone has gifted`;
+	message += `${user} gifted`;
 
 	// If there is more than one gifted item, display the number of gifts
 	if (gifts > 1)
@@ -1203,9 +1195,10 @@ function FourthwallGiftDrawStarted(data) {
 	const itemName = data.offer.name;
 
 	let message = "";
+	message += `${user} gifted`;
 
 	// If the user ordered more than one item, write how many items they ordered
-	message += `🎁 ${itemName} Giveaway! • Type 'join' in the next ${durationSeconds} seconds for your chance to win!`;
+	message += `🎁 ${itemName} Giveaway! • Type !join in the next ${durationSeconds} seconds for your chance to win!`;
 
 	ShowAlert(message, 'fourthwall');
 }
@@ -1444,6 +1437,13 @@ async function TikTokChat(data) {
 	const instance = template.content.cloneNode(true);
 
 	// Get divs
+	const messageContainerDiv = instance.querySelector("#messageContainer");
+	const firstMessageDiv = instance.querySelector("#firstMessage");
+	const sharedChatDiv = instance.querySelector("#sharedChat");
+	const sharedChatChannelDiv = instance.querySelector("#sharedChatChannel");
+	const replyDiv = instance.querySelector("#reply");
+	const replyUserDiv = instance.querySelector("#replyUser");
+	const replyMsgDiv = instance.querySelector("#replyMsg");
 	const userInfoDiv = instance.querySelector("#userInfo");
 	const avatarDiv = instance.querySelector("#avatar");
 	const timestampDiv = instance.querySelector("#timestamp");
@@ -1452,6 +1452,17 @@ async function TikTokChat(data) {
 	const pronounsDiv = instance.querySelector("#pronouns");
 	const usernameDiv = instance.querySelector("#username");
 	const messageDiv = instance.querySelector("#message");
+
+	// Render bubbles
+	if (useChatBubbles) {
+		const opacity255 = Math.round(parseFloat(bubbleOpacity) * 255);
+		let hexOpacity = opacity255.toString(16);
+		if (hexOpacity.length < 2) {
+			hexOpacity = "0" + hexOpacity;
+		}
+		document.documentElement.style.setProperty('--bubble-color', `${bubbleColor}${hexOpacity}`);
+		messageContainerDiv.classList.add("bubble");
+	}
 
 	// Set timestamp
 	if (showTimestamps) {
@@ -1526,16 +1537,7 @@ async function TikTokChat(data) {
 	AddMessageItem(instance, data.msgId, 'tiktok', data.userId);
 }
 
-function TikTokFollow(data) {	
-	if (!showTikTokFollows)
-		return;
-
-	const message = `${data.nickname} followed`;
-
-	ShowAlert(message, 'tiktok');
-}
-
-function TikTokGift(data) {
+async function TikTokGift(data) {
 	if (!showTikTokGifts)
 		return;
 
@@ -1549,23 +1551,63 @@ function TikTokGift(data) {
 	console.debug(`${data.uniqueId} has sent gift ${data.giftName} x${data.repeatCount}`);
 
 	const giftImg = `<img src=${data.giftPictureUrl} class="platform"/>`;
-
-	const message = `${data.nickname} sent ${giftImg}x${data.repeatCount}`;
+	const avatarImg = `<img src="${data.profilePictureUrl}" class="avatar"/>`;
+	const message = `${avatarImg} ${data.nickname} sent ${giftImg} x${data.repeatCount}`;
 
 	ShowAlert(message, 'tiktok');
 }
 
-function TikTokSubscribe(data) {
+async function TikTokSubscribe(data) {
 	if (!showTikTokSubs)
 		return;
 
 	let username = data.nickname;
-
-	const message = `${username} subscribed on TikTok`;
+	const avatarImg = `<img src="${data.profilePictureUrl}" class="avatar"/>`;
+	const message = `${avatarImg} ${username} subscribed for ${data.subMonth} months`;
 
 	ShowAlert(message, 'tiktok');
 }
 
+async function TikTokFollow(data) {
+	if (!showTikTokFollows)
+		return;
+	
+	const username = data.nickname;
+	const avatarImg = `<img src="${data.profilePictureUrl}" class="avatar"/>`;
+	
+	const message = `${avatarImg} ${username} Followed!`;
+
+	ShowAlert(message, 'tiktok');
+}
+
+// Store last trigger times per userId
+const shareCooldowns = {};
+const userCooldownSeconds = 120; // ⏳ cooldown per user
+
+async function TikTokShare(data) {
+	if (!showTikTokShare)
+		return;
+
+	const userId = data.uniqueId; // ✅ safer than nickname
+	const username = data.nickname;
+	const now = Date.now();
+
+	// Check cooldown
+	if (shareCooldowns[userId] && (now - shareCooldowns[userId]) < userCooldownSeconds * 1000) {
+		console.log(`⏳ ${username} (${userId}) still in cooldown, skipping share alert.`);
+		return;
+	}
+
+	// Save new timestamp
+	shareCooldowns[userId] = now;
+
+	// Avatar and message
+	const avatarImg = `<img src="${data.profilePictureUrl}" class="avatar"/>`;
+	const message = `${avatarImg} ${username} shared the live!`;
+
+	// Show the alert
+	ShowAlert(message, 'tiktok');
+}
 
 
 //////////////////////
@@ -1671,6 +1713,22 @@ async function GetPronouns(platform, username) {
 	}
 }
 
+function IsImageUrl(url) {
+	try {
+		const { pathname } = new URL(url);
+		// Only check the pathname since query parameters are not included in it.
+		return /\.(png|jpe?g|webp|gif)$/i.test(pathname);
+	} catch (error) {
+		// Return false if the URL is invalid.
+		return false;
+	}
+}
+
+function ExtractYouTubeVideoId(url) {
+	const match = url.match(youtubeRegex);
+	return match ? match[1] : null;
+}
+
 function AddMessageItem(element, elementID, platform, userId) {
 	// Calculate the height of the div before inserting
 	const tempDiv = document.getElementById('IPutThisHereSoICanCalculateHowBigEachMessageIsSupposedToBeBeforeIAddItToTheMessageList');
@@ -1718,6 +1776,12 @@ function AddMessageItem(element, elementID, platform, userId) {
 		}
 
 	}, 200);
+}
+
+function DecodeHTMLString(html) {
+	var txt = document.createElement("textarea");
+	txt.innerHTML = html;
+	return txt.value;
 }
 
 // I used Gemini for this shit so if it doesn't work, blame Google
