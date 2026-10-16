@@ -11,7 +11,7 @@ const urlParams = new URLSearchParams(queryString);
 
 const REQUIRED_VERSION = '1.0.0';
 const GESEKI_RELEASES_API = 'https://api.github.com/repos/sekisungkarak/geseki-bridge/releases?per_page=10';
-const SMTC_BRIDGE_DOWNLOAD_URL = 'https://github.com/sekisungkarak/geseki-bridge/releases';
+const GESEKI_BRIDGE_DOWNLOAD_URL = 'https://github.com/sekisungkarak/geseki-bridge/releases';
 let VersionChecked = false;
 
 ///////////////////
@@ -24,8 +24,8 @@ const mainContainer = document.getElementById('main-container');
 // OPTIONS //
 /////////////
 
-const smtcBridgeAddress = urlParams.get('smtcBridgeAddress') || '127.0.0.1';
-const smtcBridgePort = urlParams.get('smtcBridgePort') || '5000';
+const gesekiBridgeAddress = urlParams.get('gesekiBridgeAddress') || urlParams.get('gesekiBridgeAddress') || '127.0.0.1';
+const gesekiBridgePort = urlParams.get('gesekiBridgePort') || urlParams.get('gesekiBridgePort') || '47800';
 
 const theme = urlParams.get('theme') || 'standard';
 const font = urlParams.get("font") || "";
@@ -160,11 +160,11 @@ LoadTheme();
 
 async function FetchMedia() {
     try {
-        const response = await fetch(`http://${smtcBridgeAddress}:${smtcBridgePort}/now-playing`);
+        const response = await fetch(`http://${gesekiBridgeAddress}:${gesekiBridgePort}/now-playing`);
         const data = await response.json();
 
-        // Remove the SMTC Bridge popup if it's on screen
-        CloseSMTCBridgePopup();
+        // Remove the Geseki Bridge popup if it's on screen
+        CloseGesekiBridgePopup();
 
         // Check for errors in the response
         if (data.error) {
@@ -175,9 +175,9 @@ async function FetchMedia() {
             CloseErrorPopup();
         }
 
-        // Check the SMTC Bridge version
+        // Check the Geseki Bridge version
         if (!VersionChecked) {
-            CheckSMTCBridgeVersion(data.app_version);
+            CheckGesekiBridgeVersion(data.app_version);
             VersionChecked = true;
         }
 
@@ -185,10 +185,10 @@ async function FetchMedia() {
         // console.log(data);
         UpdatePlayerState(data);
     } catch (error) {
-        console.error("Failed to connect to Flask media server:", error);
+        console.error("Failed to connect to Geseki Bridge:", error);
 
-        // Show a popup to instruct the user to install SMTC Bridge
-        ShowWaitingForSMTCBridgePopup();
+        // Show a popup to instruct the user to install Geseki Bridge
+        ShowWaitingForGesekiBridgePopup();
     }
 }
 
@@ -208,17 +208,17 @@ window.addEventListener('DOMContentLoaded', () => {
 // POPUPS //
 ////////////
 
-function ShowWaitingForSMTCBridgePopup() {
+function ShowWaitingForGesekiBridgePopup() {
     const newPopup = SplashscreenPopup(
         '../.common/resources/smtc-bridge-icon.png', 
-        'Waiting for SMTC Bridge', 
-        'Please launch SMTC Bridge',
+        'Waiting for Geseki Bridge', 
+        'Please launch Geseki Bridge',
         '', // Attribute text
         'linear-gradient(0deg, #111111 0%, #11001f 100%)',
         { 
             text: 'Download', 
             action: () => { 
-                window.open(SMTC_BRIDGE_DOWNLOAD_URL, "_blank");
+                window.open(GESEKI_BRIDGE_DOWNLOAD_URL, "_blank");
             } 
         }
     );
@@ -229,17 +229,17 @@ function ShowWaitingForSMTCBridgePopup() {
 }
 
 
-function ShowSMTCBridgeUpdateRequiredPopup(installedVersion) {
+function ShowGesekiBridgeUpdateRequiredPopup(installedVersion) {
     const newPopup = SplashscreenPopup(
         '../.common/resources/smtc-bridge-icon.png',
         'Update Required',
-        'Your version of SMTC Bridge is out of date.',
+        'Your version of Geseki Bridge is out of date.',
         `<b>Installed Version: ${installedVersion}</b><br><b>New Version: ${REQUIRED_VERSION}</b>`,
         'linear-gradient(0deg, #1b0005 0%, #4f000d 100%)',
         { 
             text: 'Download', 
             action: () => { 
-                window.open(SMTC_BRIDGE_DOWNLOAD_URL, "_blank");
+                window.open(GESEKI_BRIDGE_DOWNLOAD_URL, "_blank");
             } 
         }
     );
@@ -249,18 +249,18 @@ function ShowSMTCBridgeUpdateRequiredPopup(installedVersion) {
     }
 }
 
-function ShowSMTCBridgeUpdateAvailablePopup(installedVersion) {
+function ShowGesekiBridgeUpdateAvailablePopup(installedVersion) {
     const newVersion = (typeof NewVersion !== 'undefined' && NewVersion) ? NewVersion : REQUIRED_VERSION;
     const newPopup = SplashscreenPopup(
         '../.common/resources/smtc-bridge-icon.png',
         'Update Available',
-        'A new version of SMTC Bridge is available.',
+        'A new version of Geseki Bridge is available.',
         `<b>Installed Version: ${installedVersion}</b><br><b>New Version: ${newVersion}</b>`,
         'linear-gradient(0deg, #2a004f 0%, #4f2675 100%)',
         { 
             text: 'Download', 
             action: () => { 
-                window.open(SMTC_BRIDGE_DOWNLOAD_URL, "_blank");
+                window.open(GESEKI_BRIDGE_DOWNLOAD_URL, "_blank");
             } 
         }
     );
@@ -277,7 +277,7 @@ function ShowSMTCBridgeUpdateAvailablePopup(installedVersion) {
 function ShowErrorPopup(errorMessage) {
     const newPopup = SplashscreenPopup(
         '../.common/resources/smtc-bridge-icon.png',
-        'SMTC Bridge Error',
+        'Geseki Bridge Error',
         `I'm a shit programmer and I fucked something up.`,
         `Error: ${errorMessage}`,
         'linear-gradient(0deg, #1b0005 0%, #4f000d 100%)'
@@ -295,7 +295,7 @@ function CloseErrorPopup() {
     }
 }
 
-function CloseSMTCBridgePopup()
+function CloseGesekiBridgePopup()
 {
     if (smtcBridgePopup) {
         smtcBridgePopup.close();
@@ -315,7 +315,7 @@ function CloseVersionCheckPopup()
 // HELPER FUNCTIONS //
 //////////////////////
 
-function CheckSMTCBridgeVersion(installedVersion) {
+function CheckGesekiBridgeVersion(installedVersion) {
     // Check the installed bridge version against the newest GESEKI-bridge
     // release on GitHub (drafts skipped, prerelease suffix "a" ignored, so
     // 0.8.0 and 0.8.0a count as the same core release). A fetch failure is
@@ -345,7 +345,7 @@ function CheckSMTCBridgeVersion(installedVersion) {
                 return;
             if (CompareVersions(installed, best) < 0) {
                 NewVersion = best.join('.');
-                ShowSMTCBridgeUpdateAvailablePopup(installedVersion);
+                ShowGesekiBridgeUpdateAvailablePopup(installedVersion);
                 skipVersionCheck = true;
             }
         })

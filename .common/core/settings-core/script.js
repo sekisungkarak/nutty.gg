@@ -588,7 +588,7 @@ function GetSettingDepth(setting, allSettings) {
 }
 
 function InterpolatePlaceholders() {
-	// Regex to match anything inside curly braces, e.g., {smtcBridgeAddress}
+	// Regex to match anything inside curly braces, e.g., {gesekiBridgeAddress}
 	const tokenRegex = /\{([^}]+)\}/g;
 
 	// Iterate over all settings from the original JSON in memory
