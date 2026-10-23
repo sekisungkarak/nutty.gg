@@ -10,8 +10,8 @@ const urlParams = new URLSearchParams(queryString);
 ////////////////
 
 const REQUIRED_VERSION = '1.0.0';
-const GESEKI_RELEASES_API = 'https://api.github.com/repos/sekisungkarak/geseki-bridge/releases?per_page=10';
-const GESEKI_BRIDGE_DOWNLOAD_URL = 'https://github.com/sekisungkarak/geseki-bridge/releases';
+const GESEKI_RELEASES_API = 'https://api.github.com/repos/sekisungkarak/geseki-bridge-plugin/releases?per_page=10';
+const GESEKI_BRIDGE_DOWNLOAD_URL = 'https://github.com/sekisungkarak/geseki-bridge-plugin/releases';
 let VersionChecked = false;
 
 ///////////////////
