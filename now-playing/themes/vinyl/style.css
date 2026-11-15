@@ -1,34 +1,42 @@
-
-
 #main-wrapper {
+    position: relative;
     width: 500px;
-    display: flex;
-    flex-direction: row;
-    gap: 1em;
-    opacity: 0;
-	align-items: center;
-    justify-content: center;
-}
-
-#vinyl-container {
+    aspect-ratio: 1 / 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 100%;
+    opacity: 0;
+}
+
+#vinyl-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 92%;
+    height: 92%;
+    aspect-ratio: 1 / 1;
+    z-index: 1;
     filter: drop-shadow(0px 10px 15px rgba(0, 0, 0, 0.5));
     transition: transform 1.2s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 #vinyl-background {
-    position: relative;
-    height: 100%;
     width: 100%;
+    height: 100%;
+    display: block;
+    user-select: none;
+    -webkit-user-drag: none;
 }
 
 #album-art-container {
     position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     width: 35%;
     height: 35%;
+    aspect-ratio: 1 / 1;
     border-radius: 50%; 
     overflow: hidden;
     
@@ -51,104 +59,33 @@
 
 #album-art-layer {
     z-index: 2;
-	transition: all 0.5s ease;
+    transition: all 0.5s ease;
 }
 
 #album-art-transition-layer {
     z-index: 1;
 }
 
-#progress-ring-container {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    border-radius: 20%;
-    overflow: hidden; /* This masks the 'pie slice' */
-    z-index: 0;
-}
-
 #progress-svg {
     position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
     z-index: 0;
+    pointer-events: none;
     /* Rotates the start point to 12 o'clock */
     transform: rotate(-90deg);
-    -webkit-mask-image: radial-gradient(circle, transparent 3%, black 3.5%);
-    mask-image: radial-gradient(circle, transparent 3%, black 3.5%);
 }
 
 #progress-pie-circle {
     fill: transparent;
-    stroke: var(--accent-color); /* Falls back to red if var fails */
-    stroke-width: 50; /* This thickness makes it a solid pie */
+    stroke: var(--accent-color);
+    stroke-width: 50;
     
     /* 157.1 is the exact circumference of a circle with r=25 (2 * PI * 25) */
     stroke-dasharray: 157.1;
     stroke-dashoffset: 157.1; /* Starts empty */
 
-    /* This creates the smooth, non-stuttering animation */
-    transition: all 1s linear;
-}
-
-
-
-@keyframes slide-in-from-top {
-    0% {
-        transform: translateY(-100%);
-        opacity: 0;
-    }
-
-    100% {
-        transform: translateY(0);
-        opacity: 1;
-    }
-}
-
-@keyframes slide-in-from-top {
-    0% {
-        transform: translateY(-100%);
-        opacity: 0;
-    }
-
-    100% {
-        transform: translateY(0);
-        opacity: 1;
-    }
-}
-
-@keyframes slide-out-top {
-    0% {
-        transform: translateY(0);
-        opacity: 1;
-    }
-
-    100% {
-        transform: translateY(-100%);
-        opacity: 0;
-    }
-}
-
-@keyframes slide-in-from-bottom {
-    0% {
-        transform: translateY(100%);
-        opacity: 0;
-    }
-
-    100% {
-        transform: translateY(0);
-        opacity: 1;
-    }
-}
-
-@keyframes slide-out-bottom {
-    0% {
-        transform: translateY(0);
-        opacity: 1;
-    }
-
-    100% {
-        transform: translateY(100%);
-        opacity: 0;
-    }
+    transition: stroke-dashoffset 1s linear;
 }
